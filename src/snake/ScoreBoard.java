@@ -16,5 +16,20 @@ public class ScoreBoard extends JLabel{
     
     public ScoreBoard(){
         super();
+        score = 0;
+        setTextScore();
+    }
+    
+    private void setTextScore(){
+        setText("Score:" + score);
+    }
+    
+    public int getScore(){
+        return score;
+    }
+    
+    public void setScore(int score){
+        this.score = score;
+        setTextScore();
     }
 }
