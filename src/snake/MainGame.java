@@ -93,6 +93,7 @@ public class MainGame extends javax.swing.JFrame {
     private void jMenuItemStartGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemStartGameActionPerformed
         board.initGame();
         board.setScoreBoard(scoreBoard);
+        board.setParentFrame(this);
     }//GEN-LAST:event_jMenuItemStartGameActionPerformed
 
     /**

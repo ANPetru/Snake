@@ -7,6 +7,7 @@ package snake;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,9 +19,11 @@ public class SpecialFood extends Food {
 
     private int visibleTime;
 
-    public SpecialFood(Snake snake) {
-        super(snake);
+    public SpecialFood(Snake snake, ArrayList<Node> obsList) {
+        super(snake, obsList);
         visibleTime = 10;
+        super.setGrowth(3);
+        
     }
 
     public int getVisibleTime() {

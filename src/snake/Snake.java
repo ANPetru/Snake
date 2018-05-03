@@ -39,20 +39,21 @@ public class Snake {
 
     public void draw(Graphics g, int squareWidth, int squareHeight) {
         for (Node n : listNodes) {
-            util.drawSquare(g, n, Color.black, squareWidth, squareHeight);
+            util.drawSquare(g, n, n.getColor(), squareWidth, squareHeight);
         }
     }
 
     private void initListNodes() {
         listNodes = new ArrayList<Node>();
-        listNodes.add(new Node(Board.NUM_ROW / 2, Board.NUM_COL / 2));
-        listNodes.add(new Node(Board.NUM_ROW / 2 - 1, Board.NUM_COL / 2));
-        listNodes.add(new Node(Board.NUM_ROW / 2 - 2, Board.NUM_COL / 2));
+        listNodes.add(new Node(Board.NUM_ROW / 2, Board.NUM_COL / 2, util.getRandomColor()));
+        listNodes.add(new Node(Board.NUM_ROW / 2 - 1, Board.NUM_COL / 2, util.getRandomColor()));
+        listNodes.add(new Node(Board.NUM_ROW / 2 - 2, Board.NUM_COL / 2, util.getRandomColor()));
 
     }
 
     public void move() {
-        Node newNode = new Node(listNodes.get(0).getRow(), listNodes.get(0).getCol());
+  
+        Node newNode = new Node(listNodes.get(0).getRow(), listNodes.get(0).getCol(),util.getRandomColor());
         switch (direction) {
             case UP:
                 newNode.setRow(newNode.getRow() - 1);
@@ -78,7 +79,8 @@ public class Snake {
     }
 
     public void eat(Food food) {
-        eatCounter += 1;
+        eatCounter += food.getGrowth();
+        
     }
 
     public boolean checkWithItself(int row, int col) {
@@ -89,4 +91,6 @@ public class Snake {
         }
         return false;
     }
+    
+    
 }

@@ -17,35 +17,50 @@ public class Food {
 
     private Node position;
     private Snake snake;
+    private int growth;
 
-    public Food(Snake snake) {
+    public Food(Snake snake, ArrayList<Node> obsList) {
         this.snake = snake;
-        generatePosition();
+        growth=1;
+        generatePosition(obsList);
     }
 
-    private void generatePosition() {
-        boolean canExit = false;
-        Node node=null;
-        while (!canExit) {
-            canExit=true;
-            int randomRow = (int) (Math.random() * Board.NUM_ROW);
-            int randomCol = (int) (Math.random() * Board.NUM_COL);
-            node = new Node(randomRow, randomCol);
-            ArrayList<Node> listNodes = snake.getListNodes();
-            for(Node n : listNodes){
-                if(node.getRow()==n.getRow() && node.getCol()==n.getCol()){
-                    canExit=false;
-                }
-            }
-        }
-        position=node;
+    
+    public void setGrowth(int g){
+        growth=g;
     }
     
-    public void draw(Graphics g, int squareWidth, int squareheight){
-        util.drawSquare(g, position, Color.yellow, squareWidth, squareheight);
+    public int getGrowth(){
+        return growth;
+    }
+    
+    private void generatePosition(ArrayList<Node> obsList) {
+        boolean hit = true;
+        Node node = null;
+        while (hit) {
+            hit = true;
+            int randomRow = (int) (Math.random() * Board.NUM_ROW);
+            int randomCol = (int) (Math.random() * Board.NUM_COL);
+            node = new Node(randomRow, randomCol,Color.YELLOW);
+            ArrayList<Node> listNodes = snake.getListNodes();
+            hit = util.checkNodeWithNodeList(node, listNodes);
+            if (!hit) {
+                hit = util.checkNodeWithNodeList(node, obsList);
+
+            }
+
+        }
+        position = node;
     }
 
-    public Node getPosition(){
+    public void draw(Graphics g, int squareWidth, int squareheight) {
+        if (position != null) {
+            util.drawSquare(g, position, position.getColor(), squareWidth, squareheight);
+
+        }
+    }
+
+    public Node getPosition() {
         return position;
     }
 }

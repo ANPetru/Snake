@@ -5,6 +5,8 @@
  */
 package snake;
 
+import java.awt.Color;
+
 /**
  *
  * @author alux9127477l
@@ -13,10 +15,20 @@ public class Node {
 
     private int row;
     private int col;
+    private Color color;
 
-    public Node(int row, int col) {
+    public Node(int row, int col, Color color) {
         this.row = row;
         this.col = col;
+        this.color = color;
+    }
+    
+    public void setColor(Color color){
+        this.color=color;
+    }
+    
+    public Color getColor(){
+        return color;
     }
 
     public int getRow() {

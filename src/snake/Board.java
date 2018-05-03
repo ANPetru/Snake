@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -65,23 +66,32 @@ public class Board extends JPanel implements ActionListener {
     private ScoreBoard scoreBoard;
     private Timer specialFoodTimer;
     private ArrayList<Node> obstacleListNodes;
+    private RecordsDialog recordsDialog;
+    private JFrame parentFrame;
 
     public Board() {
         super();
+        initVariables();
+    }
+
+    private void initVariables() {
         snake = new Snake();
         obstacleListNodes = new ArrayList<Node>();
 
-        initObstacles();
+        createObstacles(4);
         deltaTime = 300;
         initFood();
         timer = new Timer(deltaTime, this);
         keyAdapter = new MyKeyAdapter();
         setFocusable(true);
         scoreBoard = null;
-        food = new Food(snake);
+        food = new Food(snake, obstacleListNodes);
+        recordsDialog = null;
+        parentFrame = null;
     }
 
     public void initGame() {
+        initVariables();
         setFocusable(true);
         timer.start();
         addKeyListener(keyAdapter);
@@ -92,47 +102,47 @@ public class Board extends JPanel implements ActionListener {
         if (scoreBoard != null) {
             if (scoreBoard.getScore() > 0 && scoreBoard.getScore() % 5 == 0) {
                 food = null;
-                specialFood = new SpecialFood(snake);
+                specialFood = new SpecialFood(snake, obstacleListNodes);
                 specialFoodTimer = new Timer(specialFood.getVisibleTime() * 1000, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
                         specialFood = null;
-                        food = new Food(snake);
+                        food = new Food(snake, obstacleListNodes);
                         specialFoodTimer.stop();
                     }
                 });
                 specialFoodTimer.start();
             } else {
-                if (specialFoodTimer.isRunning()) {
+                if (specialFoodTimer != null && specialFoodTimer.isRunning()) {
                     specialFoodTimer.stop();
                 }
-                food = new Food(snake);
+                food = new Food(snake, obstacleListNodes);
                 specialFood = null;
             }
         }
 
     }
 
-    private void initObstacles() {
+    private void createObstacles(int nObstacles) {
 
         int counter = 0;
         boolean hit;
-        while (counter < 4) {
+        while (counter < nObstacles) {
             hit = false;
             int row = (int) (Math.random() * NUM_ROW);
             int col = (int) (Math.random() * NUM_COL);
-            Node obsNode = new Node(row, col);
+            Node obsNode = new Node(row, col,Color.GRAY);
 
-            for (Node n : snake.getListNodes()) {
-                if (obsNode.getRow() == n.getRow() && obsNode.getCol() == n.getCol()) {
-                    hit = true;
-                }
+            hit = util.checkNodeWithNodeList(obsNode, snake.getListNodes());
+            if (!hit) {
+                hit = util.checkNodeWithNodeList(obsNode, obstacleListNodes);
+
             }
+
             if (!hit) {
                 obstacleListNodes.add(obsNode);
                 counter++;
             }
-
         }
     }
 
@@ -151,8 +161,13 @@ public class Board extends JPanel implements ActionListener {
         } else {
             processGameOver();
         }
-        if ((food != null || specialFood != null) && checkFood()) {
-            snake.eat(food);
+        if (checkFood()) {
+            if (food != null) {
+                snake.eat(food);
+            } else {
+                snake.eat(specialFood);
+            }
+            createObstacles(1);
             initFood();
             scoreBoard.setScore(scoreBoard.getScore() + 1);
         }
@@ -261,6 +276,11 @@ public class Board extends JPanel implements ActionListener {
 
         }
 
+        Node node = new Node(nextPosRow, nextPosCol,Color.GRAY);
+        if (util.checkNodeWithNodeList(node, obstacleListNodes)) {
+            return true;
+        }
+
         return snake.checkWithItself(nextPosRow, nextPosCol);
 
     }
@@ -268,5 +288,12 @@ public class Board extends JPanel implements ActionListener {
     private void processGameOver() {
         removeKeyListener(keyAdapter);
         timer.stop();
+        recordsDialog = new RecordsDialog(parentFrame, true, scoreBoard.getScore());
+        recordsDialog.setVisible(true);
     }
+
+    public void setParentFrame(JFrame parentFrame) {
+        this.parentFrame = parentFrame;
+    }
+
 }
