@@ -18,11 +18,29 @@ public class Snake {
     private ArrayList<Node> listNodes;
     private DirectionType direction;
     private int eatCounter;
+    private boolean isAlive;
 
-    public Snake() {
-        initListNodes();
-        direction = DirectionType.RIGHT;
+    public Snake(DirectionType dir) {
+        if (dir == DirectionType.RIGHT) {
+            direction = DirectionType.RIGHT;
+            initListNodes(4);
+        } else {
+            direction=DirectionType.LEFT;
+            initListNodes(2);
+        }
         eatCounter = 0;
+        isAlive=true;
+    }
+    
+    public boolean getIsAlive(){
+        return isAlive;
+    }
+    
+    public void die(){
+        isAlive=false;
+        for(Node n:listNodes){
+            n.setColor(Color.BLACK);
+        }
     }
 
     public ArrayList<Node> getListNodes() {
@@ -43,17 +61,17 @@ public class Snake {
         }
     }
 
-    private void initListNodes() {
+    private void initListNodes(int n) {
         listNodes = new ArrayList<Node>();
-        listNodes.add(new Node(Board.NUM_ROW / 2, Board.NUM_COL / 2, util.getRandomColor()));
-        listNodes.add(new Node(Board.NUM_ROW / 2 - 1, Board.NUM_COL / 2, util.getRandomColor()));
-        listNodes.add(new Node(Board.NUM_ROW / 2 - 2, Board.NUM_COL / 2, util.getRandomColor()));
+        listNodes.add(new Node(Board.NUM_ROW / 2, Board.NUM_COL / n, util.getRandomColor()));
+        listNodes.add(new Node(Board.NUM_ROW / 2 - 1, Board.NUM_COL / n, util.getRandomColor()));
+        listNodes.add(new Node(Board.NUM_ROW / 2 - 2, Board.NUM_COL / n, util.getRandomColor()));
 
     }
 
     public void move() {
-  
-        Node newNode = new Node(listNodes.get(0).getRow(), listNodes.get(0).getCol(),util.getRandomColor());
+
+        Node newNode = new Node(listNodes.get(0).getRow(), listNodes.get(0).getCol(), util.getRandomColor());
         switch (direction) {
             case UP:
                 newNode.setRow(newNode.getRow() - 1);
@@ -80,7 +98,7 @@ public class Snake {
 
     public void eat(Food food) {
         eatCounter += food.getGrowth();
-        
+
     }
 
     public boolean checkWithItself(int row, int col) {
@@ -92,5 +110,13 @@ public class Snake {
         return false;
     }
     
-    
+    public boolean checkWithOtherSnake(Snake otherSnake,int row,int col){
+        for (Node n : otherSnake.getListNodes()) {
+            if (col == n.getCol() && row == n.getRow()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

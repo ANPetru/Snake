@@ -28,23 +28,55 @@ public class Board extends JPanel implements ActionListener {
         public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_UP:
-                    if (canMove(DirectionType.UP)) {
-                        snake.changeDirection(DirectionType.UP);
+                    if (canMove(DirectionType.UP, snakeP1)) {
+                        snakeP1.changeDirection(DirectionType.UP);
                     }
                     break;
                 case KeyEvent.VK_DOWN:
-                    if (canMove(DirectionType.DOWN)) {
-                        snake.changeDirection(DirectionType.DOWN);
+                    if (canMove(DirectionType.DOWN, snakeP1)) {
+                        snakeP1.changeDirection(DirectionType.DOWN);
                     }
                     break;
                 case KeyEvent.VK_LEFT:
-                    if (canMove(DirectionType.LEFT)) {
-                        snake.changeDirection(DirectionType.LEFT);
+                    if (canMove(DirectionType.LEFT, snakeP1)) {
+                        snakeP1.changeDirection(DirectionType.LEFT);
                     }
                     break;
                 case KeyEvent.VK_RIGHT:
-                    if (canMove(DirectionType.RIGHT)) {
-                        snake.changeDirection(DirectionType.RIGHT);
+                    if (canMove(DirectionType.RIGHT, snakeP1)) {
+                        snakeP1.changeDirection(DirectionType.RIGHT);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            repaint();
+        }
+    }
+
+    class MyKeyAdapter2 extends KeyAdapter {
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_W:
+                    if (canMove(DirectionType.UP, snakeP2)) {
+                        snakeP2.changeDirection(DirectionType.UP);
+                    }
+                    break;
+                case KeyEvent.VK_S:
+                    if (canMove(DirectionType.DOWN, snakeP2)) {
+                        snakeP2.changeDirection(DirectionType.DOWN);
+                    }
+                    break;
+                case KeyEvent.VK_A:
+                    if (canMove(DirectionType.LEFT, snakeP2)) {
+                        snakeP2.changeDirection(DirectionType.LEFT);
+                    }
+                    break;
+                case KeyEvent.VK_D:
+                    if (canMove(DirectionType.RIGHT, snakeP2)) {
+                        snakeP2.changeDirection(DirectionType.RIGHT);
                     }
                     break;
                 default:
@@ -60,9 +92,12 @@ public class Board extends JPanel implements ActionListener {
     private int deltaTime;
     private Food food;
     private SpecialFood specialFood;
-    private Snake snake;
+    private Snake snakeP1;
+    private Snake snakeP2;
+
     private Timer timer;
-    private KeyAdapter keyAdapter;
+    private KeyAdapter keyAdapterP1;
+    private KeyAdapter keyAdapterP2;
     private ScoreBoard scoreBoard;
     private Timer specialFoodTimer;
     private ArrayList<Node> obstacleListNodes;
@@ -75,17 +110,21 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void initVariables() {
-        snake = new Snake();
+        snakeP1 = new Snake(DirectionType.RIGHT);
+        snakeP2 = new Snake(DirectionType.LEFT);
+
         obstacleListNodes = new ArrayList<Node>();
 
         createObstacles(4);
         deltaTime = 300;
         initFood();
         timer = new Timer(deltaTime, this);
-        keyAdapter = new MyKeyAdapter();
+        keyAdapterP1 = new MyKeyAdapter();
+        keyAdapterP2 = new MyKeyAdapter2();
+
         setFocusable(true);
         scoreBoard = null;
-        food = new Food(snake, obstacleListNodes);
+        food = new Food(obstacleListNodes, snakeP1, snakeP2);
         recordsDialog = null;
         parentFrame = null;
     }
@@ -94,7 +133,9 @@ public class Board extends JPanel implements ActionListener {
         initVariables();
         setFocusable(true);
         timer.start();
-        addKeyListener(keyAdapter);
+        addKeyListener(keyAdapterP1);
+        addKeyListener(keyAdapterP2);
+
     }
 
     private void initFood() {
@@ -102,12 +143,12 @@ public class Board extends JPanel implements ActionListener {
         if (scoreBoard != null) {
             if (scoreBoard.getScore() > 0 && scoreBoard.getScore() % 5 == 0) {
                 food = null;
-                specialFood = new SpecialFood(snake, obstacleListNodes);
+                specialFood = new SpecialFood(obstacleListNodes, snakeP1, snakeP2);
                 specialFoodTimer = new Timer(specialFood.getVisibleTime() * 1000, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
                         specialFood = null;
-                        food = new Food(snake, obstacleListNodes);
+                        food = new Food(obstacleListNodes, snakeP1, snakeP2);
                         specialFoodTimer.stop();
                     }
                 });
@@ -116,7 +157,7 @@ public class Board extends JPanel implements ActionListener {
                 if (specialFoodTimer != null && specialFoodTimer.isRunning()) {
                     specialFoodTimer.stop();
                 }
-                food = new Food(snake, obstacleListNodes);
+                food = new Food(obstacleListNodes, snakeP1, snakeP2);
                 specialFood = null;
             }
         }
@@ -131,12 +172,14 @@ public class Board extends JPanel implements ActionListener {
             hit = false;
             int row = (int) (Math.random() * NUM_ROW);
             int col = (int) (Math.random() * NUM_COL);
-            Node obsNode = new Node(row, col,Color.GRAY);
+            Node obsNode = new Node(row, col, Color.GRAY);
 
-            hit = util.checkNodeWithNodeList(obsNode, snake.getListNodes());
+            hit = util.checkNodeWithNodeList(obsNode, snakeP1.getListNodes());
+            if (!hit) {
+                hit = util.checkNodeWithNodeList(obsNode, snakeP2.getListNodes());
+            }
             if (!hit) {
                 hit = util.checkNodeWithNodeList(obsNode, obstacleListNodes);
-
             }
 
             if (!hit) {
@@ -155,17 +198,37 @@ public class Board extends JPanel implements ActionListener {
     //Main Loop
     @Override
     public void actionPerformed(ActionEvent ae) {
-        if (!checkCollision()) {
-            snake.move();
+        if (!checkCollision(snakeP1, snakeP2) && snakeP1.getIsAlive()) {
+            snakeP1.move();
+        } else {
+            snakeP1.die();
+        }
+        if (!checkCollision(snakeP2, snakeP1) && snakeP2.getIsAlive()) {
+            snakeP2.move();
 
         } else {
+            snakeP2.die();
+        }
+
+        if (!snakeP1.getIsAlive() && !snakeP2.getIsAlive()) {
             processGameOver();
         }
-        if (checkFood()) {
+
+        if (checkFood(snakeP1)) {
             if (food != null) {
-                snake.eat(food);
+                snakeP1.eat(food);
             } else {
-                snake.eat(specialFood);
+                snakeP1.eat(specialFood);
+            }
+            createObstacles(1);
+            initFood();
+            scoreBoard.setScore(scoreBoard.getScore() + 1);
+        }
+        if (checkFood(snakeP2)) {
+            if (food != null) {
+                snakeP2.eat(food);
+            } else {
+                snakeP2.eat(specialFood);
             }
             createObstacles(1);
             initFood();
@@ -174,7 +237,7 @@ public class Board extends JPanel implements ActionListener {
         repaint();
     }
 
-    private boolean canMove(DirectionType newDirection) {
+    private boolean canMove(DirectionType newDirection, Snake snake) {
         DirectionType snakeDirection = snake.getDirection();
         switch (newDirection) {
             case UP:
@@ -200,7 +263,9 @@ public class Board extends JPanel implements ActionListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawBoard(g);
-        snake.draw(g, getSquareWidth(), getSquareHeight());
+        snakeP1.draw(g, getSquareWidth(), getSquareHeight());
+        snakeP2.draw(g, getSquareWidth(), getSquareHeight());
+
         drawObstacles(g);
 
         if (food != null) {
@@ -226,7 +291,7 @@ public class Board extends JPanel implements ActionListener {
 
     }
 
-    private boolean checkFood() {
+    private boolean checkFood(Snake snake) {
         Node snakePos = snake.getListNodes().get(0);
         Node foodPos = null;
         if (food != null) {
@@ -245,7 +310,7 @@ public class Board extends JPanel implements ActionListener {
         this.scoreBoard = scoreBoard;
     }
 
-    private boolean checkCollision() {
+    private boolean checkCollision(Snake snake, Snake otherSnake) {
         int nextPosRow = snake.getListNodes().get(0).getRow();
         int nextPosCol = snake.getListNodes().get(0).getCol();
         switch (snake.getDirection()) {
@@ -276,17 +341,21 @@ public class Board extends JPanel implements ActionListener {
 
         }
 
-        Node node = new Node(nextPosRow, nextPosCol,Color.GRAY);
+        Node node = new Node(nextPosRow, nextPosCol, Color.GRAY);
         if (util.checkNodeWithNodeList(node, obstacleListNodes)) {
             return true;
         }
 
-        return snake.checkWithItself(nextPosRow, nextPosCol);
-
+        if (snake.checkWithItself(nextPosRow, nextPosCol)) {
+            return true;
+        }
+        return snake.checkWithOtherSnake(otherSnake, nextPosRow, nextPosCol);
     }
 
     private void processGameOver() {
-        removeKeyListener(keyAdapter);
+        removeKeyListener(keyAdapterP1);
+        removeKeyListener(keyAdapterP2);
+
         timer.stop();
         recordsDialog = new RecordsDialog(parentFrame, true, scoreBoard.getScore());
         recordsDialog.setVisible(true);

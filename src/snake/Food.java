@@ -16,24 +16,23 @@ import java.util.ArrayList;
 public class Food {
 
     private Node position;
-    private Snake snake;
+    private Snake[] snake;
     private int growth;
 
-    public Food(Snake snake, ArrayList<Node> obsList) {
+    public Food(ArrayList<Node> obsList, Snake... snake) {
         this.snake = snake;
-        growth=1;
+        growth = 1;
         generatePosition(obsList);
     }
 
-    
-    public void setGrowth(int g){
-        growth=g;
+    public void setGrowth(int g) {
+        growth = g;
     }
-    
-    public int getGrowth(){
+
+    public int getGrowth() {
         return growth;
     }
-    
+
     private void generatePosition(ArrayList<Node> obsList) {
         boolean hit = true;
         Node node = null;
@@ -41,12 +40,14 @@ public class Food {
             hit = true;
             int randomRow = (int) (Math.random() * Board.NUM_ROW);
             int randomCol = (int) (Math.random() * Board.NUM_COL);
-            node = new Node(randomRow, randomCol,Color.YELLOW);
-            ArrayList<Node> listNodes = snake.getListNodes();
-            hit = util.checkNodeWithNodeList(node, listNodes);
-            if (!hit) {
-                hit = util.checkNodeWithNodeList(node, obsList);
+            node = new Node(randomRow, randomCol, Color.YELLOW);
+            for (Snake s : snake) {
+                ArrayList<Node> listNodes = s.getListNodes();
+                hit = util.checkNodeWithNodeList(node, listNodes);
+                if (!hit) {
+                    hit = util.checkNodeWithNodeList(node, obsList);
 
+                }
             }
 
         }
