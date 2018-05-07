@@ -15,32 +15,48 @@ import java.util.ArrayList;
  */
 public class Snake {
 
+    public static final Color[] SNAKE_COLORS = {Color.GREEN, Color.BLUE, Color.MAGENTA, Color.ORANGE};
+    public static final Node[] SNAKE_INIT_NODE = {new Node(Board.NUM_ROW / 4, Board.NUM_COL / 2),
+        new Node(Board.NUM_ROW - Board.NUM_ROW / 4, Board.NUM_COL / 2),
+        new Node(Board.NUM_ROW / 2, Board.NUM_COL / 4),
+        new Node(Board.NUM_ROW / 2, Board.NUM_COL - Board.NUM_COL / 4)};
+    public static final DirectionType[] SNAKE_INIT_DIRECTION = {DirectionType.DOWN, DirectionType.UP, DirectionType.RIGHT, DirectionType.LEFT};
+
     private ArrayList<Node> listNodes;
     private DirectionType direction;
     private int eatCounter;
     private boolean isAlive;
+    private Color color;
+    private boolean isTurning;
+    private int id;
 
-    public Snake(DirectionType dir) {
-        if (dir == DirectionType.RIGHT) {
-            direction = DirectionType.RIGHT;
-            initListNodes(4);
-        } else {
-            direction=DirectionType.LEFT;
-            initListNodes(2);
-        }
+    public Snake(Color color, Node node, DirectionType direction, int id) {
+        this.direction=direction;
+        this.color = color;
+        isTurning = false;
+        initListNodes(node);
         eatCounter = 0;
-        isAlive=true;
+        isAlive = true;
+        this.id=id;
     }
-    
-    public boolean getIsAlive(){
+
+    public boolean getIsAlive() {
         return isAlive;
     }
-    
-    public void die(){
-        isAlive=false;
-        for(Node n:listNodes){
+
+    public void die() {
+        isAlive = false;
+        for (Node n : listNodes) {
             n.setColor(Color.BLACK);
         }
+    }
+
+    public boolean getIsTurning() {
+        return isTurning;
+    }
+
+    public void setIsTurning(boolean isTurning) {
+        this.isTurning = isTurning;
     }
 
     public ArrayList<Node> getListNodes() {
@@ -49,6 +65,7 @@ public class Snake {
 
     public void changeDirection(DirectionType direction) {
         this.direction = direction;
+        isTurning = true;
     }
 
     public DirectionType getDirection() {
@@ -61,17 +78,30 @@ public class Snake {
         }
     }
 
-    private void initListNodes(int n) {
+    private void initListNodes(Node n) {
         listNodes = new ArrayList<Node>();
-        listNodes.add(new Node(Board.NUM_ROW / 2, Board.NUM_COL / n, util.getRandomColor()));
-        listNodes.add(new Node(Board.NUM_ROW / 2 - 1, Board.NUM_COL / n, util.getRandomColor()));
-        listNodes.add(new Node(Board.NUM_ROW / 2 - 2, Board.NUM_COL / n, util.getRandomColor()));
+        listNodes.add(n);
+        switch (direction) {
+            case LEFT:
+                listNodes.add(new Node(n.getRow() - 1, n.getCol()));
+                break;
+            case RIGHT:
+                listNodes.add(new Node(n.getRow() + 1, n.getCol()));
+                break;
+            case UP:
+                listNodes.add(new Node(n.getRow(), n.getCol() - 1));
+                break;
+            case DOWN:
+                listNodes.add(new Node(n.getRow(), n.getCol() + 1));
+                break;
+
+        }
 
     }
 
     public void move() {
 
-        Node newNode = new Node(listNodes.get(0).getRow(), listNodes.get(0).getCol(), util.getRandomColor());
+        Node newNode = new Node(listNodes.get(0).getRow(), listNodes.get(0).getCol(), color);
         switch (direction) {
             case UP:
                 newNode.setRow(newNode.getRow() - 1);
@@ -98,7 +128,7 @@ public class Snake {
 
     public void eat(Food food) {
         eatCounter += food.getGrowth();
-
+        changeColor();
     }
 
     public boolean checkWithItself(int row, int col) {
@@ -110,13 +140,27 @@ public class Snake {
         return false;
     }
     
-    public boolean checkWithOtherSnake(Snake otherSnake,int row,int col){
-        for (Node n : otherSnake.getListNodes()) {
-            if (col == n.getCol() && row == n.getRow()) {
-                return true;
+    public int getID(){
+        return id;
+    }
+
+    public boolean checkWithOtherSnake(Snake[] otherSnakes, int row, int col) {
+        for (Snake otherSnake : otherSnakes) {
+            for (Node n : otherSnake.getListNodes()) {
+                if ( id != otherSnake.getID() &&col == n.getCol() && row == n.getRow()) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
+    private void changeColor() {
+        int colorNumber = 0;
+        int counter = 255 / listNodes.size();
+        for (Node n : listNodes) {
+            colorNumber += counter;
+            n.setColor(new Color(colorNumber, colorNumber, colorNumber));
+        }
+    }
 }

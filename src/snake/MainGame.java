@@ -11,11 +11,34 @@ package snake;
  */
 public class MainGame extends javax.swing.JFrame {
 
+    private ScoreBoard[] scoreBoards;
+
     /**
      * Creates new form MainGame
      */
     public MainGame() {
+
         initComponents();
+        initScoreBoards();
+        board.setPlayerSelection(this);
+        
+    }
+
+    private void initScoreBoards() {
+        scoreBoards = new ScoreBoard[4];
+        scoreBoards[0] = scoreBoardP1;
+        scoreBoards[1] = scoreBoardP2;
+        scoreBoards[2] = scoreBoardP3;
+        scoreBoards[3] = scoreBoardP4;
+
+    }
+
+    public void setScoreBoards(int numSB) {
+        ScoreBoard[] scoreBoardsArray = new ScoreBoard[numSB];
+        for (int i = 0; i < scoreBoardsArray.length; i++) {
+            scoreBoardsArray[i] = scoreBoards[i];
+        }
+        board.setScoreBoard(scoreBoardsArray);
     }
 
     /**
@@ -28,7 +51,10 @@ public class MainGame extends javax.swing.JFrame {
     private void initComponents() {
 
         board = new snake.Board();
-        scoreBoard = new snake.ScoreBoard();
+        scoreBoardP1 = new snake.ScoreBoard();
+        scoreBoardP2 = new snake.ScoreBoard();
+        scoreBoardP3 = new snake.ScoreBoard();
+        scoreBoardP4 = new snake.ScoreBoard();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenuItemStartGame = new javax.swing.JMenuItem();
@@ -48,7 +74,13 @@ public class MainGame extends javax.swing.JFrame {
             .addGap(0, 249, Short.MAX_VALUE)
         );
 
-        scoreBoard.setText("scoreBoard1");
+        scoreBoardP1.setText("score p1");
+
+        scoreBoardP2.setText("score p2");
+
+        scoreBoardP3.setText("score p3");
+
+        scoreBoardP4.setText("Score p4");
 
         jMenu2.setText("Game");
 
@@ -71,10 +103,18 @@ public class MainGame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(board, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(board, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(scoreBoard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 287, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(scoreBoardP1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(scoreBoardP2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(scoreBoardP3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(210, 210, 210)
+                                .addComponent(scoreBoardP4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(46, 46, 46)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -82,18 +122,29 @@ public class MainGame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(board, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scoreBoard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(scoreBoardP2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(scoreBoardP1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(scoreBoardP4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(scoreBoardP3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItemStartGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemStartGameActionPerformed
-        board.initGame();
-        board.setScoreBoard(scoreBoard);
+
         board.setParentFrame(this);
+        board.initGame();
+
     }//GEN-LAST:event_jMenuItemStartGameActionPerformed
 
     /**
@@ -136,6 +187,9 @@ public class MainGame extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItemStartGame;
-    private snake.ScoreBoard scoreBoard;
+    private snake.ScoreBoard scoreBoardP1;
+    private snake.ScoreBoard scoreBoardP2;
+    private snake.ScoreBoard scoreBoardP3;
+    private snake.ScoreBoard scoreBoardP4;
     // End of variables declaration//GEN-END:variables
 }

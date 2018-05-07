@@ -23,6 +23,11 @@ public class Node {
         this.color = color;
     }
     
+     public Node(int row, int col) {
+        this.row = row;
+        this.col = col;
+        color=Color.BLACK;
+    }
     public void setColor(Color color){
         this.color=color;
     }

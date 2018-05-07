@@ -56,10 +56,12 @@ public class RecordsDialog extends javax.swing.JDialog {
     private ArrayList<Record> recordsList;
     private boolean saveRecord;
     private JLabel[] recordLabels;
-    
-    public RecordsDialog(java.awt.Frame parent, boolean modal, int score) {
+
+    public RecordsDialog(java.awt.Frame parent, boolean modal, int score, String player) {
         super(parent, modal);
+
         initComponents();
+        jLabelPlayer.setText(player);
         initRecordLabels();
         saveRecord = true;
         this.score = score;
@@ -110,10 +112,19 @@ public class RecordsDialog extends javax.swing.JDialog {
             String line;
             int counter = 0;
             while ((line = input.readLine()) != null && counter < 5) {
-                String[] recordLine =line.split(":");
-                Record r = new Record(Integer.parseInt(recordLine[0]), recordLine[1]);
-                list.add(r);
-                recordLabels[counter].setText(Integer.parseInt(recordLine[0])+" "+recordLine[1]);
+                String[] recordLine = line.split(":");
+                Record r = null;
+                if (recordLine.length > 1) {
+                    r = new Record(Integer.parseInt(recordLine[0]), recordLine[1]);
+                    list.add(r);
+                    recordLabels[counter].setText(Integer.parseInt(recordLine[0]) + " " + recordLine[1]);
+
+                } else {
+                    r = new Record(Integer.parseInt(recordLine[0]), "NoName");
+                    list.add(r);
+                    recordLabels[counter].setText(Integer.parseInt(recordLine[0]) + " NoName");
+                }
+
                 counter++;
 
             }
@@ -165,6 +176,7 @@ public class RecordsDialog extends javax.swing.JDialog {
         jLabelName = new javax.swing.JLabel();
         jTextFieldName = new javax.swing.JTextField();
         jButtonOK = new javax.swing.JButton();
+        jLabelPlayer = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -196,6 +208,8 @@ public class RecordsDialog extends javax.swing.JDialog {
             }
         });
 
+        jLabelPlayer.setText("player");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -218,12 +232,17 @@ public class RecordsDialog extends javax.swing.JDialog {
                         .addComponent(jTextFieldName, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
                         .addComponent(jButtonOK)
-                        .addGap(27, 27, 27))))
+                        .addGap(27, 27, 27))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabelPlayer)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(19, 19, 19)
+                .addComponent(jLabelPlayer)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabelCurrentScore)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabelRecord1)
@@ -235,7 +254,7 @@ public class RecordsDialog extends javax.swing.JDialog {
                 .addComponent(jLabelRecord4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabelRecord5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 124, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 90, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelName)
                     .addComponent(jTextFieldName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -308,6 +327,7 @@ public class RecordsDialog extends javax.swing.JDialog {
     private javax.swing.JButton jButtonOK;
     private javax.swing.JLabel jLabelCurrentScore;
     private javax.swing.JLabel jLabelName;
+    private javax.swing.JLabel jLabelPlayer;
     private javax.swing.JLabel jLabelRecord1;
     private javax.swing.JLabel jLabelRecord2;
     private javax.swing.JLabel jLabelRecord3;
