@@ -163,12 +163,10 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
-    public static final int NUM_ROW = 30;
-    public static final int NUM_COL = 30;
-
+    private int numRows;
+    private int numCols;
     private int deltaTime;
     private Food food;
-    private SpecialFood specialFood;
     private Timer timer;
     private Player[] players;
     private ScoreBoard[] scoreBoards;
@@ -177,7 +175,6 @@ public class Board extends JPanel implements ActionListener {
     private RecordsDialog recordsDialog;
     private JFrame parentFrame;
     private PlayerSelection playerSelection;
-    private MainGame game;
     private KeyAdapter[] keyAdapters;
     private Snake[] snakes;
 
@@ -185,8 +182,12 @@ public class Board extends JPanel implements ActionListener {
         super();
         players = null;
         scoreBoards = null;
+        food = FoodFactory.getFood("null", obstacleListNodes, snakes);
         initKeyAdapters();
         initVariables();
+        numRows = ConfigSingleton.getInstance().getNumRows();
+        numCols = ConfigSingleton.getInstance().getNumCols();
+
     }
 
     public void setScoreBoard(ScoreBoard... scoreBoard) {
@@ -211,7 +212,6 @@ public class Board extends JPanel implements ActionListener {
     private void initVariables() {
 
         obstacleListNodes = new ArrayList<Node>();
-
         deltaTime = 100;
         initFood();
         timer = new Timer(deltaTime, this);
@@ -221,10 +221,21 @@ public class Board extends JPanel implements ActionListener {
     }
 
     public void initGame() {
+        if (players != null) {
+            restartGame();
+        }
         initVariables();
+        createObstacles(4);
         setFocusable(true);
         timer.start();
 
+    }
+
+    private void restartGame() {
+        setPLayers(players.length);
+        for (ScoreBoard s : scoreBoards) {
+            s.resetScore();
+        }
     }
 
     private void initFood() {
@@ -232,12 +243,13 @@ public class Board extends JPanel implements ActionListener {
         if (scoreBoards != null && snakes != null) {
             if (checkSpecialFood()) {
                 food = null;
-                specialFood = new SpecialFood(obstacleListNodes, snakes);
-                specialFoodTimer = new Timer(specialFood.getVisibleTime() * 1000, new ActionListener() {
+                food = FoodFactory.getFood("specialfood", obstacleListNodes, snakes);
+
+                specialFoodTimer = new Timer(((SpecialFood) food).getVisibleTime() * 1000, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
-                        specialFood = null;
-                        food = new Food(obstacleListNodes, snakes);
+                        food = FoodFactory.getFood("normalfood", obstacleListNodes, snakes);
+
                         specialFoodTimer.stop();
                     }
                 });
@@ -246,8 +258,7 @@ public class Board extends JPanel implements ActionListener {
                 if (specialFoodTimer != null && specialFoodTimer.isRunning()) {
                     specialFoodTimer.stop();
                 }
-                food = new Food(obstacleListNodes, snakes);
-                specialFood = null;
+                food = FoodFactory.getFood("normalfood", obstacleListNodes, snakes);
             }
         }
 
@@ -263,13 +274,13 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void createObstacles(int nObstacles) {
-
         int counter = 0;
-        boolean hit;
-        while (counter < nObstacles) {
+        boolean hit = false;
+        while (counter < nObstacles && !hit) {
+            System.out.println(counter);
             hit = false;
-            int row = (int) (Math.random() * NUM_ROW);
-            int col = (int) (Math.random() * NUM_COL);
+            int row = (int) (Math.random() * numRows);
+            int col = (int) (Math.random() * numCols);
             Node obsNode = new Node(row, col, Color.GRAY);
 
             for (Snake s : snakes) {
@@ -299,17 +310,20 @@ public class Board extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
         if (players != null) {
             for (Player p : players) {
-                checkPlayer(p);
+                if (checkPlayer(p)) {
+                    return;
+                }
             }
         }
         Toolkit.getDefaultToolkit().sync();
         repaint();
     }
 
-    private void checkPlayer(Player player) {
+    private boolean checkPlayer(Player player) {
         player.getSnake().setIsTurning(false);
         if (checkDeath()) {
             processGameOver();
+            return true;
         }
         if (!checkCollision(player.getSnake(), snakes) && player.getSnake().getIsAlive()) {
             player.getSnake().move();
@@ -318,17 +332,13 @@ public class Board extends JPanel implements ActionListener {
         }
 
         if (checkFood(player.getSnake())) {
-            if (food != null) {
-                player.getSnake().eat(food);
-            } else {
-                player.getSnake().eat(specialFood);
-            }
+            player.getSnake().eat(food);
             createObstacles(1);
             initFood();
             player.getScoreBoard().setScore(player.getScoreBoard().getScore() + 1);
 
         }
-
+        return false;
     }
 
     private boolean checkDeath() {
@@ -364,6 +374,7 @@ public class Board extends JPanel implements ActionListener {
 
     @Override
     protected void paintComponent(Graphics g) {
+
         super.paintComponent(g);
         drawBoard(g);
         if (snakes != null) {
@@ -377,23 +388,19 @@ public class Board extends JPanel implements ActionListener {
         if (food != null) {
             food.draw(g, getSquareWidth(), getSquareHeight());
         }
-
-        if (specialFood != null) {
-            specialFood.draw(g, getSquareWidth(), getSquareHeight());
-        }
     }
 
     private int getSquareWidth() {
-        return getWidth() / NUM_COL;
+        return getWidth() / numCols;
     }
 
     private int getSquareHeight() {
-        return getHeight() / NUM_ROW;
+        return getHeight() / numRows;
     }
 
     private void drawBoard(Graphics g) {
         g.setColor(Color.gray);
-        g.drawRect(0, 0, getSquareWidth() * NUM_COL, getSquareHeight() * NUM_ROW);
+        g.drawRect(0, 0, getSquareWidth() * numCols, getSquareHeight() * numRows);
 
     }
 
@@ -402,9 +409,6 @@ public class Board extends JPanel implements ActionListener {
         Node foodPos = null;
         if (food != null) {
             foodPos = food.getPosition();
-
-        } else {
-            foodPos = specialFood.getPosition();
         }
         if (snakePos.getCol() == foodPos.getCol() && snakePos.getRow() == foodPos.getRow()) {
             return true;
@@ -424,7 +428,7 @@ public class Board extends JPanel implements ActionListener {
                 break;
             case DOWN:
                 nextPosRow++;
-                if (nextPosRow > NUM_ROW - 1) {
+                if (nextPosRow > numRows - 1) {
                     return true;
                 }
                 break;
@@ -436,7 +440,7 @@ public class Board extends JPanel implements ActionListener {
                 break;
             case RIGHT:
                 nextPosCol++;
-                if (nextPosCol > NUM_COL - 1) {
+                if (nextPosCol > numCols - 1) {
                     return true;
                 }
                 break;
@@ -470,19 +474,21 @@ public class Board extends JPanel implements ActionListener {
 
     private void setScoreRecord() {
 
-        recordsDialog = new RecordsDialog(parentFrame, true, getGreatestScore().getScore(), "Player 1");
+        recordsDialog = new RecordsDialog(parentFrame, true, players[getGreatestScore()].getScoreBoard().getScore(), "Player " + (getGreatestScore() + 1));
         recordsDialog.setVisible(true);
 
     }
 
-    private ScoreBoard getGreatestScore() {
+    private int getGreatestScore() {
+        int num = 0;
         ScoreBoard maxScore = scoreBoards[0];
         for (int i = 1; i < scoreBoards.length; i++) {
             if (scoreBoards[i].getScore() > maxScore.getScore()) {
                 maxScore = scoreBoards[i];
+                num = i;
             }
         }
-        return maxScore;
+        return num;
     }
 
     public void setPLayers(int numPlayers) {
@@ -494,10 +500,11 @@ public class Board extends JPanel implements ActionListener {
         for (int i = 0; i < snakes.length; i++) {
             snakes[i] = players[i].getSnake();
         }
-        createObstacles(4);
-        food = new Food(obstacleListNodes, snakes);
+        food = FoodFactory.getFood("normalfood", obstacleListNodes, snakes);
         for (int i = 0; i < players.length; i++) {
             addKeyListener(keyAdapters[i]);
         }
+        numRows = ConfigSingleton.getInstance().getNumRows();
+        numCols = ConfigSingleton.getInstance().getNumCols();
     }
 }

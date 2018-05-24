@@ -7,19 +7,20 @@ package snake;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  *
  * @author alux9127477l
  */
-public class Snake {
+public class Snake implements Serializable{
 
     public static final Color[] SNAKE_COLORS = {Color.GREEN, Color.BLUE, Color.MAGENTA, Color.ORANGE};
-    public static final Node[] SNAKE_INIT_NODE = {new Node(Board.NUM_ROW / 4, Board.NUM_COL / 2),
-        new Node(Board.NUM_ROW - Board.NUM_ROW / 4, Board.NUM_COL / 2),
-        new Node(Board.NUM_ROW / 2, Board.NUM_COL / 4),
-        new Node(Board.NUM_ROW / 2, Board.NUM_COL - Board.NUM_COL / 4)};
+    public static final Node[] SNAKE_INIT_NODE = {new Node(ConfigSingleton.getInstance().getNumRows() / 4, ConfigSingleton.getInstance().getNumCols() / 2),
+        new Node(ConfigSingleton.getInstance().getNumRows() - ConfigSingleton.getInstance().getNumRows() / 4, ConfigSingleton.getInstance().getNumCols() / 2),
+        new Node(ConfigSingleton.getInstance().getNumRows() / 2, ConfigSingleton.getInstance().getNumCols() / 4),
+        new Node(ConfigSingleton.getInstance().getNumRows() / 2, ConfigSingleton.getInstance().getNumCols() - ConfigSingleton.getInstance().getNumCols() / 4)};
     public static final DirectionType[] SNAKE_INIT_DIRECTION = {DirectionType.DOWN, DirectionType.UP, DirectionType.RIGHT, DirectionType.LEFT};
 
     private ArrayList<Node> listNodes;

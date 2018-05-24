@@ -5,11 +5,13 @@
  */
 package snake;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alux9127477l
  */
 
-public enum DirectionType {
+public enum DirectionType{
     UP,DOWN,LEFT,RIGHT
 }

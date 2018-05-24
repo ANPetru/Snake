@@ -5,6 +5,9 @@
  */
 package snake;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 /**
@@ -14,14 +17,28 @@ import javax.swing.JFrame;
 public class PlayerSelection extends javax.swing.JDialog {
 
     private MainGame game;
+
     /**
      * Creates new form PlayerSelection
      */
     public PlayerSelection(java.awt.Frame parent, boolean modal, MainGame game) {
-        
+
         super(parent, modal);
         initComponents();
-        this.game=game;
+        this.game = game;
+        try {
+            ConfigSingleton.getInstance().readFromFile();
+            setTextFields();
+        } catch (Exception ex) {
+
+        }
+    }
+    
+    private void setTextFields(){
+        jTextNumPlayers.setText(""+ConfigSingleton.getInstance().getNumPlayers());
+        jTextFieldCols.setText(""+ConfigSingleton.getInstance().getNumCols());
+        jTextFieldRows.setText(""+ConfigSingleton.getInstance().getNumRows());
+        
     }
 
     private PlayerSelection(JFrame jFrame, boolean b) {
@@ -40,6 +57,10 @@ public class PlayerSelection extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         jTextNumPlayers = new javax.swing.JTextField();
         jButtonOK = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jTextFieldRows = new javax.swing.JTextField();
+        jTextFieldCols = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -52,34 +73,62 @@ public class PlayerSelection extends javax.swing.JDialog {
             }
         });
 
+        jLabel2.setText("Num Rows");
+
+        jLabel3.setText("Num Cols");
+
+        jTextFieldRows.setText("20");
+        jTextFieldRows.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldRowsActionPerformed(evt);
+            }
+        });
+
+        jTextFieldCols.setText("20");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jButtonOK))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(114, 114, 114)
-                                .addComponent(jLabel1))
+                                .addGap(146, 146, 146)
+                                .addComponent(jTextNumPlayers, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(147, 147, 147)
-                                .addComponent(jTextNumPlayers, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 121, Short.MAX_VALUE)))
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel3))
+                                .addGap(23, 23, 23)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jTextFieldCols, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jTextFieldRows, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel1))))
+                        .addGap(0, 127, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(88, 88, 88)
+                .addGap(39, 39, 39)
                 .addComponent(jLabel1)
-                .addGap(49, 49, 49)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jTextNumPlayers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jTextFieldRows, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jTextFieldCols, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(21, 21, 21)
                 .addComponent(jButtonOK)
                 .addGap(20, 20, 20))
         );
@@ -93,19 +142,37 @@ public class PlayerSelection extends javax.swing.JDialog {
 
         try {
             numPlayers = Integer.parseInt(jTextNumPlayers.getText());
-            if (numPlayers > 0 && numPlayers < 5) {
-                game.setScoreBoards(numPlayers);
+            if (numPlayers > 0 && numPlayers < 5 && setRowsAndCols()) {
+                ConfigSingleton.getInstance().setNumPlayers(numPlayers);
+                game.setScoreBoards();
+                ConfigSingleton.getInstance().writeOnFile();
                 dispose();
             } else {
                 jTextNumPlayers.setText("");
+                
             }
         } catch (Exception ex) {
             jTextNumPlayers.setText("");
-            ex.printStackTrace();      
         }
 
 
     }//GEN-LAST:event_jButtonOKActionPerformed
+
+    private boolean setRowsAndCols() {
+        try {
+            ConfigSingleton.getInstance().setNumCols(Integer.parseInt(jTextFieldCols.getText()));
+            ConfigSingleton.getInstance().setNumRows(Integer.parseInt(jTextFieldRows.getText()));
+            return true;
+        } catch (Exception ex) {
+            jTextFieldCols.setText("");
+            jTextFieldRows.setText("");
+            return false;
+        }
+    }
+
+    private void jTextFieldRowsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldRowsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldRowsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -152,6 +219,10 @@ public class PlayerSelection extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonOK;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JTextField jTextFieldCols;
+    private javax.swing.JTextField jTextFieldRows;
     private javax.swing.JTextField jTextNumPlayers;
     // End of variables declaration//GEN-END:variables
 }

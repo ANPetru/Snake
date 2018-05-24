@@ -33,8 +33,8 @@ public class MainGame extends javax.swing.JFrame {
 
     }
 
-    public void setScoreBoards(int numSB) {
-        ScoreBoard[] scoreBoardsArray = new ScoreBoard[numSB];
+    public void setScoreBoards() {
+        ScoreBoard[] scoreBoardsArray = new ScoreBoard[ConfigSingleton.getInstance().getNumPlayers()];
         for (int i = 0; i < scoreBoardsArray.length; i++) {
             scoreBoardsArray[i] = scoreBoards[i];
         }

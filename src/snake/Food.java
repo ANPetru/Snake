@@ -1,26 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package snake;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 /**
  *
  * @author alux9127477l
  */
-public class Food {
+public abstract class Food {
 
     private Node position;
-    private Snake[] snake;
+    private Snake[] snakes;
     private int growth;
 
-    public Food(ArrayList<Node> obsList, Snake... snake) {
-        this.snake = snake;
+    public Food(ArrayList<Node> obsList, Snake[] snakes) {
+        this.snakes = snakes;
         growth = 1;
         generatePosition(obsList);
     }
@@ -38,10 +38,10 @@ public class Food {
         Node node = null;
         while (hit) {
             hit = true;
-            int randomRow = (int) (Math.random() * Board.NUM_ROW);
-            int randomCol = (int) (Math.random() * Board.NUM_COL);
+            int randomRow = (int) (Math.random() * ConfigSingleton.getInstance().getNumRows());
+            int randomCol = (int) (Math.random() * ConfigSingleton.getInstance().getNumCols());
             node = new Node(randomRow, randomCol, Color.YELLOW);
-            for (Snake s : snake) {
+            for (Snake s : snakes) {
                 ArrayList<Node> listNodes = s.getListNodes();
                 hit = util.checkNodeWithNodeList(node, listNodes);
                 if (!hit) {
@@ -54,14 +54,9 @@ public class Food {
         position = node;
     }
 
-    public void draw(Graphics g, int squareWidth, int squareheight) {
-        if (position != null) {
-            util.drawSquare(g, position, position.getColor(), squareWidth, squareheight);
-
-        }
-    }
-
     public Node getPosition() {
         return position;
     }
+
+    public abstract void draw(Graphics g, int squareWidth, int squareheight);
 }
